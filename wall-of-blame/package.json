@@ -25,7 +25,6 @@
       "editor/context": [
         {
           "command": "extension.showGitContributors",
-          "when": "editorLangId == 'typescript' || editorLangId == 'javascript'",
           "group": "navigation"
         }
       ],
