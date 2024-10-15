@@ -1,26 +1,48 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
+import { exec } from 'child_process';
 
-// This method is called when your extension is activated
-// Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
+  let disposable = vscode.commands.registerCommand('extension.showGitContributors', () => {
+    const workspaceFolders = vscode.workspace.workspaceFolders;
 
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
-	console.log('Congratulations, your extension "wall-of-blame" is now active!');
+    if (workspaceFolders) {
+      const rootPath = workspaceFolders[0].uri.fsPath;
 
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with registerCommand
-	// The commandId parameter must match the command field in package.json
-	const disposable = vscode.commands.registerCommand('wall-of-blame.helloWorld', () => {
-		// The code you place here will be executed every time your command is executed
-		// Display a message box to the user
-		vscode.window.showInformationMessage('Hello World from Wall of Blame!');
-	});
+      // Commande Git pour obtenir uniquement les noms des contributeurs
+      const gitCommand = "git log --format='%aN'";
 
-	context.subscriptions.push(disposable);
+      exec(gitCommand, { cwd: rootPath }, (error, stdout, stderr) => {
+        if (error) {
+          vscode.window.showErrorMessage(`Erreur lors de l'ex�cution de la commande Git: ${error.message}`);
+          console.error(`Erreur lors de l'ex�cution de la commande Git : ${error.message}`);
+          return;
+        }
+
+        if (stderr) {
+          vscode.window.showErrorMessage(`Erreur: ${stderr}`);
+          console.error(`Erreur stderr: ${stderr}`);
+          return;
+        }
+
+        // Traiter la sortie
+        const contributors = stdout.trim().split('\n');
+        // Supprimer les doublons
+        const uniqueContributors = Array.from(new Set(contributors));
+        
+        if (uniqueContributors.length === 0) {
+          vscode.window.showInformationMessage('Aucun contributeur trouv�.');
+        } else {
+          // Affiche les contributeurs dans une fen�tre d'information
+          const contributorList = uniqueContributors.join('\n'); // S�pare les noms par des nouvelles lignes
+          vscode.window.showInformationMessage(`Contributeurs du projet :\n${contributorList}`);
+        }
+      });
+    } else {
+      vscode.window.showErrorMessage('Aucun dossier de projet ouvert.');
+    }
+  });
+
+  context.subscriptions.push(disposable);
 }
 
-// This method is called when your extension is deactivated
 export function deactivate() {}
