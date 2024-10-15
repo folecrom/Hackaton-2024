@@ -12,7 +12,9 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.window.showErrorMessage('Aucun dossier de projet ouvert.');
   }
 
+
   context.subscriptions.push(contributorCommand);
+ 
 }
 
 export function deactivate() {}
