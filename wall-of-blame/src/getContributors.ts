@@ -1,72 +1,57 @@
 import * as vscode from 'vscode';
 import { exec } from 'child_process';
+import * as util from 'util';
 
+const execPromise = util.promisify(exec); // Promisify exec pour faciliter l'utilisation avec async/await
+
+// Commande pour récupérer les contributeurs Git et les afficher dans une liste déroulante
 export function getContributorsCommand(context: vscode.ExtensionContext) {
-    return vscode.commands.registerCommand('extension.showGitContributors', () => {
+    return vscode.commands.registerCommand('extension.showGitContributors', async () => {
         const workspaceFolders = vscode.workspace.workspaceFolders;
     
-        if (workspaceFolders) {
-          const rootPath = workspaceFolders[0].uri.fsPath;
-    
-          // Commande Git pour obtenir uniquement les noms des contributeurs
-          const gitCommand = "git log --format='%aN'";
-    
-          exec(gitCommand, { cwd: rootPath }, (error, stdout, stderr) => {
-            if (error) {
-              vscode.window.showErrorMessage(`Erreur lors de l'ex�cution de la commande Git: ${error.message}`);
-              console.error(`Erreur lors de l'ex�cution de la commande Git : ${error.message}`);
-              return;
-            }
-    
-            if (stderr) {
-              vscode.window.showErrorMessage(`Erreur: ${stderr}`);
-              console.error(`Erreur stderr: ${stderr}`);
-              return;
-            }
-    
-            // Traiter la sortie
-            const contributors = stdout.trim().split('\n');
-            // Supprimer les doublons
-            const uniqueContributors = getGitContributors(rootPath);
+        if (!workspaceFolders) {
+            vscode.window.showErrorMessage('Aucun dossier de projet ouvert.');
+            return;
+        }
+
+        const rootPath = workspaceFolders[0].uri.fsPath;
+
+        try {
+            const uniqueContributors = await getGitContributors(rootPath);
             
             if (uniqueContributors.length === 0) {
-              vscode.window.showInformationMessage('Aucun contributeur trouv�.');
+                vscode.window.showInformationMessage('Aucun contributeur trouvé.');
             } else {
-              // Affiche les contributeurs dans une fen�tre d'information
-              const contributorList = uniqueContributors.join('\n'); // S�pare les noms par des nouvelles lignes
-              vscode.window.showInformationMessage(`Contributeurs du projet :\n${contributorList}`);
+                // Affiche les contributeurs dans une liste déroulante
+                const selectedContributor = await vscode.window.showQuickPick(uniqueContributors, {
+                    placeHolder: 'Sélectionnez un contributeur',
+                });
+
+                if (selectedContributor) {
+                    vscode.window.showInformationMessage(`Vous avez sélectionné : ${selectedContributor}`);
+                }
             }
-          });
-        } else {
-          vscode.window.showErrorMessage('Aucun dossier de projet ouvert.');
+        } catch (error) {
+            vscode.window.showErrorMessage(`Erreur lors de la récupération des contributeurs Git: ${error.message}`);
         }
-      });
+    });
 }
 
-export function getGitContributors(rootPath: string) : any[] {
-  const gitCommand = "git log --format='%aN'";
+// Fonction pour récupérer les contributeurs Git
+export async function getGitContributors(rootPath: string): Promise<string[]> {
+    const gitCommand = "git log --format='%aN'"; // Commande Git pour récupérer les noms des auteurs
 
-  let contributors = null;
-
-  exec(gitCommand, { cwd: rootPath }, (error, stdout, stderr) => {
-    if (error) {
-      showErrorMessage(`Erreur lors de l'ex�cution de la commande Git: ${error.message}`);
-      return;
+    try {
+        const { stdout } = await execPromise(gitCommand, { cwd: rootPath });
+        
+        // Supprimer les doublons en utilisant Set et trier les contributeurs
+        const contributors = stdout.trim().split('\n').filter(Boolean);
+        const uniqueContributors = Array.from(new Set(contributors));
+        
+        return uniqueContributors;
+    } catch (error) {
+        throw new Error(`Erreur lors de l'exécution de la commande Git: ${error.message}`);
     }
-
-    if (stderr) {
-      showErrorMessage(`Erreur: ${stderr}`);
-      return;
-    }
-
-    contributors = stdout.trim().split('\n');
-  });
-
-  return Array.from(new Set(contributors));
-}
-
-function showErrorMessage(message: string) {
-  vscode.window.showErrorMessage(message);
 }
 
 export function deactivate() {}

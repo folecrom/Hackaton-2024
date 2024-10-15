@@ -1,7 +1,7 @@
 {
   "name": "wall-of-blame",
   "displayName": "Wall of Blame",
-  "description": "compteur d'erreur et attribuer la honte au dernier ",
+  "description": "Compteur d'erreurs et attribuer la honte au dernier commit.",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.94.0"
@@ -17,10 +17,6 @@
         "title": "Blame"
       },
       {
-        "command": "extension.viewBlameDetails",
-        "title": "Contributor"
-      },
-      {
         "command": "extension.showGitContributors",
         "title": "Show Git Contributors"
       }
@@ -28,8 +24,14 @@
     "menus": {
       "editor/context": [
         {
-          "command": "extension.blame",
-          "when": "editorTextFocus",
+          "command": "extension.showGitContributors",
+          "when": "editorLangId == 'typescript' || editorLangId == 'javascript'",
+          "group": "navigation"
+        }
+      ],
+      "explorer/context": [
+        {
+          "command": "extension.showGitContributors",
           "group": "navigation"
         }
       ]
