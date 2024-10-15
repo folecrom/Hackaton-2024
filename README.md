@@ -22,28 +22,14 @@ L’objectif est d’aider les développeurs à maintenir un code propre et sans
 2. **Installation manuelle :**
    - Clonez ce dépôt sur votre machine :
      ```bash
-     git clone https://github.com/votre-utilisateur/error-points-counter.git
+     git clone https://github.com/folecrom/Hackaton-2024.git
      ```
-   - Allez dans le répertoire du projet :
-     ```bash
-     cd error-points-counter
-     ```
-   - Ouvrez le répertoire dans VSCode :
-     ```bash
-     code .
-     ```
-   - Dans VSCode, ouvrez le terminal et exécutez :
-     ```bash
-     npm install
-     ```
-   - Appuyez sur `F5` pour démarrer l'extension en mode débogage.
 
 ## Utilisation
 
 1. Ouvrez un fichier de code dans VSCode.
-2. Le plugin analysera automatiquement les erreurs dans le fichier ouvert.
-3. Le total des points d'erreur sera affiché dans la **barre d'état** en bas de l'éditeur.
-4. Pour une vue détaillée, cliquez sur l'indicateur de points dans la barre d'état pour voir les erreurs spécifiques et leurs points.
+2. Pointer les erreurs double click 
+3. Le total des points d'erreur sera affiché dans une page html.
 
 ### Exemples de points d’erreur :
 - **Variable non définie** : 5 points
