@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { exec } from 'child_process';
 
-export function getContributors(context: vscode.ExtensionContext) {
+export function getContributorsCommand(context: vscode.ExtensionContext) {
     return vscode.commands.registerCommand('extension.showGitContributors', () => {
         const workspaceFolders = vscode.workspace.workspaceFolders;
     
@@ -27,7 +27,7 @@ export function getContributors(context: vscode.ExtensionContext) {
             // Traiter la sortie
             const contributors = stdout.trim().split('\n');
             // Supprimer les doublons
-            const uniqueContributors = Array.from(new Set(contributors));
+            const uniqueContributors = getGitContributors(rootPath);
             
             if (uniqueContributors.length === 0) {
               vscode.window.showInformationMessage('Aucun contributeur trouvé.');
@@ -42,3 +42,31 @@ export function getContributors(context: vscode.ExtensionContext) {
         }
       });
 }
+
+export function getGitContributors(rootPath: string) : any[] {
+  const gitCommand = "git log --format='%aN'";
+
+  let contributors = null;
+
+  exec(gitCommand, { cwd: rootPath }, (error, stdout, stderr) => {
+    if (error) {
+      showErrorMessage(`Erreur lors de l'exécution de la commande Git: ${error.message}`);
+      return;
+    }
+
+    if (stderr) {
+      showErrorMessage(`Erreur: ${stderr}`);
+      return;
+    }
+
+    contributors = stdout.trim().split('\n');
+  });
+
+  return Array.from(new Set(contributors));
+}
+
+function showErrorMessage(message: string) {
+  vscode.window.showErrorMessage(message);
+}
+
+export function deactivate() {}

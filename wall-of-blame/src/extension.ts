@@ -1,11 +1,18 @@
 import * as vscode from 'vscode';
-import { exec } from 'child_process';
-import { getContributors } from './getContributors';
+import { getContributorsCommand, getGitContributors } from './getContributors';
 
 export function activate(context: vscode.ExtensionContext) {
-  let contributor = getContributors(context);
+  const contributorCommand = getContributorsCommand(context);
 
-  context.subscriptions.push(contributor);
+  const workspaceFolders = vscode.workspace.workspaceFolders;
+  if (workspaceFolders) {
+    const rootPath = workspaceFolders[0].uri.fsPath;
+    let contributor = getGitContributors(rootPath);
+  } else {
+    vscode.window.showErrorMessage('Aucun dossier de projet ouvert.');
+  }
+
+  context.subscriptions.push(contributorCommand);
 }
 
 export function deactivate() {}
