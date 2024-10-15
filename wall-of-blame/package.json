@@ -19,6 +19,10 @@
       {
         "command": "extension.viewBlameDetails",
         "title": "Contributor"
+      },
+      {
+        "command": "extension.showGitContributors",
+        "title": "Show Git Contributors"
       }
     ],
     "menus": {
@@ -27,12 +31,6 @@
           "command": "extension.blame",
           "when": "editorTextFocus",
           "group": "navigation"
-        },
-        {
-          "command": "extension.viewBlameDetails",
-          "when": "editorTextFocus",
-          "group": "navigation@1",
-          "submenu": "extension.blame"
         }
       ]
     }
