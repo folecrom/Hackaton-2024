@@ -2,22 +2,21 @@
 # Error Points Counter - VSCode Plugin
 
 ## Description
-**Error Points Counter** est un plugin pour Visual Studio Code qui permet de compter automatiquement les points d’erreur dans votre code. Ce plugin analyse le fichier ouvert, identifie les erreurs de syntaxe courantes, et affiche un score total de points d’erreur en fonction de la gravité des problèmes rencontrés.
+**Error Points Counter** est un plugin pour Visual Studio Code qui permet de compter automatiquement les points d’erreur dans votre code. Affiche un score total de points d’erreur en fonction de la gravité des problèmes rencontrés.
 
 L’objectif est d’aider les développeurs à maintenir un code propre et sans erreurs en surveillant un score d’erreur global.
 
 ## Fonctionnalités
-- **Détection d’erreurs de syntaxe** : Analyse le fichier ouvert et identifie les erreurs courantes telles que les erreurs de syntaxe, les variables non définies, et bien plus.
 - **Attribution de points d’erreur** : Chaque type d’erreur détectée se voit attribuer un nombre de points, basé sur sa gravité.
 - **Affichage des points d’erreur** : Affiche le total des points d’erreur dans la barre d'état de VSCode.
-- **Compatibilité multi-langages** : Fonctionne avec plusieurs langages de programmation courants (JavaScript, Python, Java, etc.).
+- **Compatibilité multi-langages** : Fonctionne avec un langages de programmation courants.
 
 ## Installation
 
 1. **Installation depuis le marketplace :**
    - Ouvrez VSCode.
    - Allez dans l'onglet **Extensions** (ou utilisez `Ctrl+Shift+X`).
-   - Recherchez `Error Points Counter`.
+   - Recherchez `Error Points Counter alexendre`.
    - Cliquez sur **Installer**.
 
 2. **Installation manuelle :**
