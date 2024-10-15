@@ -1,75 +1,48 @@
 import * as vscode from 'vscode';
-import * as path from 'path';
-import * as fs from 'fs';
 import { exec } from 'child_process';
-import * as util from 'util';
 
-const execPromise = util.promisify(exec);
-
-// Fonction pour vérifier si un dossier contient un dépôt Git
-async function findGitRepo(startPath: string): Promise<string | null> {
-    let currentPath = startPath;
-
-    while (currentPath) {
-        const gitFolderPath = path.join(currentPath, '.git');
-        if (fs.existsSync(gitFolderPath)) {
-            return currentPath; // Retourner le chemin du dépôt Git trouvé
-        }
-
-        const parentPath = path.dirname(currentPath);
-        if (parentPath === currentPath) {
-            break; // Sortir de la boucle si nous atteignons le niveau racine
-        }
-
-        currentPath = parentPath; // Mettre à jour le chemin pour le dossier parent
-    }
-
-    return null; // Aucun dépôt Git trouvé
-}
-
-// This method is called when your extension is activated
 export function activate(context: vscode.ExtensionContext) {
-    let disposable = vscode.commands.registerCommand('wall-of-blame.helloWorld', async () => {
-        const workspaceFolders = vscode.workspace.workspaceFolders;
+  let disposable = vscode.commands.registerCommand('extension.showGitContributors', () => {
+    const workspaceFolders = vscode.workspace.workspaceFolders;
 
-        if (!workspaceFolders || workspaceFolders.length === 0) {
-            vscode.window.showErrorMessage('No workspace is opened. Please open a folder to use this extension.');
-            return;
+    if (workspaceFolders) {
+      const rootPath = workspaceFolders[0].uri.fsPath;
+
+      // Commande Git pour obtenir uniquement les noms des contributeurs
+      const gitCommand = "git log --format='%aN'";
+
+      exec(gitCommand, { cwd: rootPath }, (error, stdout, stderr) => {
+        if (error) {
+          vscode.window.showErrorMessage(`Erreur lors de l'ex�cution de la commande Git: ${error.message}`);
+          console.error(`Erreur lors de l'ex�cution de la commande Git : ${error.message}`);
+          return;
         }
 
-        const rootPath = workspaceFolders[0].uri.fsPath; // Prendre le chemin du dossier racine du projet
-        const gitRepoPath = await findGitRepo(rootPath); // Chercher le dossier Git dans le projet
-
-        if (!gitRepoPath) {
-            vscode.window.showInformationMessage('.git folder not found in the project root or parent directories.');
-            return; // Sortir si aucun dépôt Git trouvé
+        if (stderr) {
+          vscode.window.showErrorMessage(`Erreur: ${stderr}`);
+          console.error(`Erreur stderr: ${stderr}`);
+          return;
         }
 
-        vscode.window.showInformationMessage(`.git folder found at: ${gitRepoPath}`);
-
-        // Récupérer les contributeurs si le dépôt est trouvé
-        try {
-			console.log(`1`);
-            const result = await execPromise('git version', { cwd: gitRepoPath,});
-			console.log(`Git version result:\n${result.stdout}`);
- 			// Exécuter la commande dans le dossier du dépôt
-			console.log(`2`);
-            // Vérifier si le résultat a du contenu
-            if (result.stdout.trim()) {
-				console.log(`3`);
-                // Afficher les contributeurs dans une notification
-                vscode.window.showInformationMessage(`Contributors:\n${result.stdout}`);
-            } else {
-                vscode.window.showInformationMessage('No contributors found in this Git repository.');
-            }
-        } catch (error) {
-            vscode.window.showErrorMessage('Failed to get Git contributors');
-            console.error(error);
+        // Traiter la sortie
+        const contributors = stdout.trim().split('\n');
+        // Supprimer les doublons
+        const uniqueContributors = Array.from(new Set(contributors));
+        
+        if (uniqueContributors.length === 0) {
+          vscode.window.showInformationMessage('Aucun contributeur trouv�.');
+        } else {
+          // Affiche les contributeurs dans une fen�tre d'information
+          const contributorList = uniqueContributors.join('\n'); // S�pare les noms par des nouvelles lignes
+          vscode.window.showInformationMessage(`Contributeurs du projet :\n${contributorList}`);
         }
-    });
+      });
+    } else {
+      vscode.window.showErrorMessage('Aucun dossier de projet ouvert.');
+    }
+  });
 
-    context.subscriptions.push(disposable);
+  context.subscriptions.push(disposable);
 }
 
-// This method is called when your extension is deactivated
 export function deactivate() {}
