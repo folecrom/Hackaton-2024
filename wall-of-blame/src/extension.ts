@@ -1,38 +1,30 @@
 import * as vscode from 'vscode';
-import { exec } from 'child_process';
 
 export function activate(context: vscode.ExtensionContext) {
-  let disposable = vscode.commands.registerCommand('extension.showGitContributors', () => {
-    // Récupérer le dossier racine du projet ouvert
-    const workspaceFolders = vscode.workspace.workspaceFolders;
-    if (workspaceFolders) {
-      const rootPath = workspaceFolders[0].uri.fsPath;
-      
-      // Commande Git pour obtenir les contributeurs
-      const gitCommand = 'git shortlog -s -n';
-      
-      // Exécuter la commande Git dans le répertoire du projet
-      exec(gitCommand, { cwd: rootPath }, (error, stdout, stderr) => {
-        if (error) {
-          vscode.window.showErrorMessage(`Erreur lors de l'exécution de la commande Git: ${error.message}`);
-          return;
-        }
-        
-        if (stderr) {
-          vscode.window.showErrorMessage(`Erreur: ${stderr}`);
-          return;
-        }
-        
-        // Afficher les contributeurs dans VS Code
-        vscode.window.showInformationMessage(`Contributeurs du projet :\n${stdout}`);
-      });
-    } else {
-      vscode.window.showErrorMessage('Aucun projet ouvert.');
+  
+  // Main "Blame" command
+  let blameDisposable = vscode.commands.registerCommand('extension.blame', () => {
+    const editor = vscode.window.activeTextEditor;
+    if (editor) {
+      const lineNumber = editor.selection.active.line + 1;
+      const filePath = editor.document.fileName;
+      vscode.window.showInformationMessage(`Blame for line ${lineNumber} in file ${filePath}`);
     }
   });
 
-  context.subscriptions.push(disposable);
-  console.log(disposable);
+  // Subcommand: "Contributor"
+  let viewDetailsDisposable = vscode.commands.registerCommand('extension.viewBlameDetails', () => {
+    const editor = vscode.window.activeTextEditor;
+    if (editor) {
+      const lineNumber = editor.selection.active.line + 1;
+      vscode.window.showInformationMessage(`Viewing blame details for line ${lineNumber}`);
+    }
+  });
+
+
+  // Register the disposables
+  context.subscriptions.push(blameDisposable);
+  context.subscriptions.push(viewDetailsDisposable);
 }
 
 export function deactivate() {}
