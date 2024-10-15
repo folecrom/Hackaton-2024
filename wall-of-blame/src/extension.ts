@@ -13,8 +13,8 @@ export function activate(context: vscode.ExtensionContext) {
 
       exec(gitCommand, { cwd: rootPath }, (error, stdout, stderr) => {
         if (error) {
-          vscode.window.showErrorMessage(`Erreur lors de l'exécution de la commande Git: ${error.message}`);
-          console.error(`Erreur lors de l'exécution de la commande Git : ${error.message}`);
+          vscode.window.showErrorMessage(`Erreur lors de l'exï¿½cution de la commande Git: ${error.message}`);
+          console.error(`Erreur lors de l'exï¿½cution de la commande Git : ${error.message}`);
           return;
         }
 
@@ -30,10 +30,10 @@ export function activate(context: vscode.ExtensionContext) {
         const uniqueContributors = Array.from(new Set(contributors));
         
         if (uniqueContributors.length === 0) {
-          vscode.window.showInformationMessage('Aucun contributeur trouvé.');
+          vscode.window.showInformationMessage('Aucun contributeur trouvï¿½.');
         } else {
-          // Affiche les contributeurs dans une fenêtre d'information
-          const contributorList = uniqueContributors.join('\n'); // Sépare les noms par des nouvelles lignes
+          // Affiche les contributeurs dans une fenï¿½tre d'information
+          const contributorList = uniqueContributors.join('\n'); // Sï¿½pare les noms par des nouvelles lignes
           vscode.window.showInformationMessage(`Contributeurs du projet :\n${contributorList}`);
         }
       });
