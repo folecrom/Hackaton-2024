@@ -26,10 +26,6 @@ export function getContributorsCommand(context: vscode.ExtensionContext) {
                 const selectedContributor = await vscode.window.showQuickPick(uniqueContributors, {
                     placeHolder: 'Sélectionnez un contributeur',
                 });
-
-                if (selectedContributor) {
-                    vscode.window.showInformationMessage(`Vous avez sélectionné : ${selectedContributor}`);
-                }
             }
         } catch (error) {
             vscode.window.showErrorMessage(`Erreur lors de la récupération des contributeurs Git: ${error.message}`);
@@ -44,8 +40,13 @@ export async function getGitContributors(rootPath: string): Promise<string[]> {
     try {
         const { stdout } = await execPromise(gitCommand, { cwd: rootPath });
         
-        // Supprimer les doublons en utilisant Set et trier les contributeurs
-        const contributors = stdout.trim().split('\n').filter(Boolean);
+        // Supprimer les doublons et enlever les guillemets simples
+        const contributors = stdout
+            .trim()
+            .split('\n')
+            .filter(Boolean)
+            .map(contributor => contributor.replace(/'/g, '')); // Retirer les guillemets simples
+        
         const uniqueContributors = Array.from(new Set(contributors));
         
         return uniqueContributors;

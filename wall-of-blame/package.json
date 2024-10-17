@@ -24,13 +24,13 @@
     "menus": {
       "editor/context": [
         {
-          "command": "extension.showGitContributors",
+          "command": "extension.blame",
           "group": "navigation"
         }
       ],
       "explorer/context": [
         {
-          "command": "extension.showGitContributors",
+          "command": "extension.blame",
           "group": "navigation"
         }
       ]
