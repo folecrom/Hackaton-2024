@@ -43,7 +43,6 @@ export async function activate(context: vscode.ExtensionContext) {
     const workspaceFolders = vscode.workspace.workspaceFolders;
     if (workspaceFolders) {
         const rootPath = workspaceFolders[0].uri.fsPath;
-        console.log(1);
 
         try {
             // Utilisation d'await pour attendre la récupération des contributeurs
@@ -204,56 +203,55 @@ const executeOnFileChange = async (editor: vscode.TextEditor) => {
 };
 
 const createUnblameCommand = (context: vscode.ExtensionContext) => {
-  let disposable = vscode.commands.registerCommand('extension.unblame', async () => {
-      const editor = vscode.window.activeTextEditor;
-      if (!editor) {
-          return;
-      }
+    let disposable = vscode.commands.registerCommand('extension.unblame', async () => {
+        const editor = vscode.window.activeTextEditor;
+        if (!editor) {
+            return;
+        }
 
-      const lineNumber = editor.selection.active.line + 1; // Ligne actuelle
-      const currentFile = editor.document.uri.fsPath.split(`${vscode.workspace.workspaceFolders![0].uri.fsPath}/`)[1]; // Chemin relatif
-      
-      const filePath = path.join(vscode.workspace.workspaceFolders![0].uri.fsPath, "blame.json");
-      
-      if (fs.existsSync(filePath)) {
-          const fileContent = fs.readFileSync(filePath, "utf-8");
-          const blameData: BlameData = JSON.parse(fileContent);
+        const lineNumber = editor.selection.active.line + 1; // Ligne actuelle
+        const currentFile = editor.document.uri.fsPath.split(`${vscode.workspace.workspaceFolders![0].uri.fsPath}/`)[1]; // Chemin relatif
+        
+        const filePath = path.join(vscode.workspace.workspaceFolders![0].uri.fsPath, "blame.json");
+        
+        if (fs.existsSync(filePath)) {
+            const fileContent = fs.readFileSync(filePath, "utf-8");
+            const blameData: BlameData = JSON.parse(fileContent);
 
-          for (const contributor in blameData) {
-              const lines = blameData[contributor].lines;
+            for (const contributor in blameData) {
+                const lines = blameData[contributor].lines;
 
-              // Vérifiez que lines est un tableau avant de continuer
-              if (Array.isArray(lines)) {
-                  // Vérifiez si la ligne à supprimer correspond à celle sélectionnée
-                  const lineIndex = lines.findIndex(line => line.filename === currentFile && line.lineNumber === lineNumber);
-                  
-                  if (lineIndex !== -1) {
-                      lines.splice(lineIndex, 1); // Supprimer la ligne
+                // Vérifiez que lines est un tableau avant de continuer
+                if (Array.isArray(lines)) {
+                    // Vérifiez si la ligne à supprimer correspond à celle sélectionnée
+                    const lineIndex = lines.findIndex(line => line.filename === currentFile && line.lineNumber === lineNumber);
+                    
+                    if (lineIndex !== -1) {
+                        lines.splice(lineIndex, 1); // Supprimer la ligne
 
-                      // Si aucune ligne n'est laissée pour ce contributeur, supprimer le contributeur
-                      if (!lines.length ) {
-                          delete blameData[contributor];
-                      }
+                        // Si aucune ligne n'est laissée pour ce contributeur, supprimer le contributeur
+                        if (!lines.length) {
+                            delete blameData[contributor];
+                        }
 
-                      // Écrire à nouveau le fichier blame.json
-                      fs.writeFileSync(filePath, JSON.stringify(blameData, null, 4), "utf-8");
-                      vscode.window.showInformationMessage(`Unblame effectué pour la ligne ${lineNumber} dans ${currentFile}`);
-                      editor.setDecorations(
-                          vscode.window.createTextEditorDecorationType({}),
-                          []
-                      );
-                      return;
-                  }
-              }
-          }
-          vscode.window.showErrorMessage("Aucun blame trouvé pour cette ligne.");
-      } else {
-          vscode.window.showErrorMessage("Le fichier blame.json n'existe pas.");
-      }
-  });
+                        // Écrire à nouveau le fichier blame.json
+                        fs.writeFileSync(filePath, JSON.stringify(blameData, null, 4), "utf-8");
+                        vscode.window.showInformationMessage(`Unblame effectué pour la ligne ${lineNumber} dans ${currentFile}`);
 
-  context.subscriptions.push(disposable);
+                        vscode.commands.executeCommand("workbench.action.reloadWindow"); // Recharger la fenêtre
+                        return;
+                    }
+                }
+            }
+            vscode.window.showErrorMessage("Aucun blame trouvé pour cette ligne.");
+        } else {
+            vscode.window.showErrorMessage("Le fichier blame.json n'existe pas.");
+        }
+    });
+
+    context.subscriptions.push(disposable);
 };
+
 
 function getHoverInformation(fileName: string, lineNumber: number): vscode.Hover | undefined {
   const workspaceFolders = vscode.workspace.workspaceFolders;
