@@ -51,6 +51,11 @@ Si vous souhaitez contribuer à ce projet :
 
 Si vous rencontrez un problème ou avez une suggestion pour améliorer ce plugin, veuillez créer une issue dans le [dépôt GitHub](https://github.com/votre-utilisateur/error-points-counter/issues).
 
-## Licence
+## Language Utilisé 
+nous avons utilisé le langage le plus utiliser pour crée des extensions sur vscode : Node et Yoman.
 
-Ce projet est sous licence MIT. Consultez le fichier [LICENSE](./LICENSE) pour plus de détails.
+## Contributeur 
+Mathis AUGEREAU mathis.augereau@ynov.com
+Alexandre Rolland alexandre.rolland85@ynov.com
+Nicolas Rivalant nicolas.rivalant@ynov.com
+Mattis Naud mattis.naud@ynov.com
