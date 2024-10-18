@@ -1,13 +1,57 @@
 {
-    "name": "wall-of-blame",
-    "displayName": "Wall of Blame",
-    "description": "Compteur d'erreurs et attribuer la honte au dernier commit.",
-    "version": "0.0.1",
-    "engines": {
-        "vscode": "^1.94.0"
+  "name": "wall-of-blame",
+  "displayName": "Wall of Blame",
+  "description": "Compteur d'erreurs et attribuer la honte au dernier commit.",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.94.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "views": {
+      "scm": [
+        {
+					"id": "nodeContributors",
+					"name": "Node Contributors"
+				}
+      ]
     },
-    "categories": [
-        "Other"
+    "commands": [
+      {
+        "command": "extension.blame",
+        "title": "Blame"
+      },
+      {
+        "command": "extension.showGitContributors",
+        "title": "Show Git Contributors"
+      },
+      {
+				"command": "nodeContributors.refreshEntry",
+				"title": "Refresh",
+				"icon": {
+					"light": "resources/light/refresh.svg",
+					"dark": "resources/dark/refresh.svg"
+				}
+			},
+			{
+				"command": "nodeContributors.addEntry",
+				"title": "Add"
+			},
+			{
+				"command": "nodeContributors.editEntry",
+				"title": "Edit",
+				"icon": {
+					"light": "resources/light/edit.svg",
+					"dark": "resources/dark/edit.svg"
+				}
+			},
+			{
+				"command": "nodeContributors.deleteEntry",
+				"title": "Delete"
+			}
     ],
     "activationEvents": [
         "onStartupFinished"
@@ -76,4 +120,5 @@
         "@vscode/test-cli": "^0.0.10",
         "@vscode/test-electron": "^2.4.1"
     }
+}
 }

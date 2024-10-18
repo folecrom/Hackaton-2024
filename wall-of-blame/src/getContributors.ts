@@ -27,7 +27,7 @@ export function getContributorsCommand(context: vscode.ExtensionContext) {
                     placeHolder: 'Sélectionnez un contributeur',
                 });
             }
-        } catch (error: any) {
+        } catch (error : any) {
             vscode.window.showErrorMessage(`Erreur lors de la récupération des contributeurs Git: ${error.message}`);
         }
     });
@@ -50,7 +50,7 @@ export async function getGitContributors(rootPath: string): Promise<string[]> {
         const uniqueContributors = Array.from(new Set(contributors));
         
         return uniqueContributors;
-    } catch (error: any) {
+    } catch (error : any) {
         throw new Error(`Erreur lors de l'exécution de la commande Git: ${error.message}`);
     }
 }
