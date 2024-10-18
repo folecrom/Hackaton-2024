@@ -24,13 +24,22 @@ export class ContribNodeProvider implements vscode.TreeDataProvider<Contributor>
 			vscode.window.showInformationMessage('No Contributor in empty workspace');
 			return Promise.resolve([]);
 		}
-		
-		const blameJsonPath = path.join(this.workspaceRoot, 'blame.json');
-		if (this.pathExists(blameJsonPath)) {
-			return Promise.resolve(this.getContributorsLinesPoints(blameJsonPath));
+		if (element) {
+			const blameJsonPath = path.join(this.workspaceRoot, 'blame.json');
+			if (this.pathExists(blameJsonPath)) {
+				return Promise.resolve(this.getContributorsLinesPoints(blameJsonPath, element));
+			} else {
+				vscode.window.showInformationMessage('Workspace has no blame.json');
+				return Promise.resolve([]);
+			}
 		} else {
-			vscode.window.showInformationMessage('Workspace has no blame.json');
-			return Promise.resolve([]);
+			const blameJsonPath = path.join(this.workspaceRoot, 'blame.json');
+			if (this.pathExists(blameJsonPath)) {
+				return Promise.resolve(this.getContributorsLinesPoints(blameJsonPath));
+			} else {
+				vscode.window.showInformationMessage('Workspace has no blame.json');
+				return Promise.resolve([]);
+			}
 		}
 
 	}
@@ -38,7 +47,7 @@ export class ContribNodeProvider implements vscode.TreeDataProvider<Contributor>
 	/**
 	 * Given the path to package.json, read all its dependencies and devDependencies.
 	 */
-	private getContributorsLinesPoints(packageJsonPath: string): Contributor[] {
+	private getContributorsLinesPoints(packageJsonPath: string, element?: Contributor): Contributor[] {
 		const workspaceRoot = this.workspaceRoot;
 		if (this.pathExists(packageJsonPath) && workspaceRoot) {
 			// Parse the JSON file and cast it to the correct type
@@ -50,18 +59,29 @@ export class ContribNodeProvider implements vscode.TreeDataProvider<Contributor>
 				const points = contributorInfo.points;
 				const lines = contributorInfo.lines;
 	
-				// Add the main contributor node with points
-				contributorTree.push(new Contributor(contributorName, points, vscode.TreeItemCollapsibleState.Collapsed));
-	
-				// Check if 'lines' is an array and iterate over it
-				if (Array.isArray(lines)) {
-					for (let line of lines) {
-						// Add each line with filename and line number
-						contributorTree.push(new Contributor(`${line.filename} (line ${line.lineNumber})`, null, vscode.TreeItemCollapsibleState.None));
-					}
-				} else {
-					console.warn(`'lines' for ${contributorName} is not an array or is null.`);
+				// Create an array to hold the line nodes (children of the contributor)
+				const lineNodes: Contributor[] = [];
+				// Create the main contributor node (collapsible)
+
+				if (!element) {
+					const contributorNode = new Contributor(contributorName, points, vscode.TreeItemCollapsibleState.Collapsed);
+					contributorTree.push(contributorNode);
 				}
+	
+				if (element && element.name == contributorName) {
+					for (let line of lines) {
+						// Create a node for each line with filename and line number
+						const contributorNode = new Contributor(`${line.filename} (line ${line.lineNumber})`, null, vscode.TreeItemCollapsibleState.None);  // Add the line to the list of children
+						contributorTree.push(contributorNode);
+					}
+		
+					// Add the contributor node (with its children) to the main tree
+				}
+			}
+	
+			// Sort the contributorTree by points in descending order
+			if (!element) {
+				contributorTree.sort((a, b) => (b.points || 0) - (a.points || 0));
 			}
 	
 			return contributorTree;
@@ -69,6 +89,7 @@ export class ContribNodeProvider implements vscode.TreeDataProvider<Contributor>
 			return [];
 		}
 	}
+	
 	
 
 	private pathExists(p: string): boolean {
@@ -86,13 +107,16 @@ export class Contributor extends vscode.TreeItem {
 
 	constructor(
 		public readonly name: string,
-		private readonly points: number | null,
+		public readonly points: number | null,
 		public readonly collapsibleState: vscode.TreeItemCollapsibleState,
+		public children: Contributor[] = []
 	) {
 		super(name, collapsibleState);
 
-		this.tooltip = `${this.name}-${this.points}`;
-		this.description = this.name;
+		if (points != null) {
+			this.tooltip = `${this.name}-${this.points}`;
+			this.description = this.points?.toString();
+		}
 	}
 
 	iconPath = {
