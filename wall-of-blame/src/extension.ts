@@ -28,10 +28,16 @@ export async function activate(context: vscode.ExtensionContext) {
 
   const hoverProvider = vscode.languages.registerHoverProvider("*", {
     provideHover(document, position) {
-      const path = document.uri.fsPath.split(vscode.workspace.workspaceFolders![0].uri.fsPath + "/")[1];
+      const filePath = document.uri.fsPath;
+
+      // Obtenir le chemin absolu du dossier racine du workspace
+      const workspacePath = vscode.workspace.workspaceFolders![0].uri.fsPath;
+
+      // Calculer le chemin relatif
+      const relativePath = path.relative(workspacePath, filePath);
       const lineNumber = position.line + 1;
 
-      return getHoverInformation(path || "", lineNumber);
+      return getHoverInformation(relativePath || "", lineNumber);
     },
   });
 
@@ -159,16 +165,19 @@ const executeOnFileChange = async (editor: vscode.TextEditor) => {
   }
 
   const rootPath = workspaceFolders[0].uri.fsPath;
-  const current_file = editor.document.uri.fsPath.split(`${rootPath}/`)[1]; // Chemin relatif
+  const filePath = editor!.document.uri.fsPath;
+  // Obtenir le chemin absolu du dossier racine du workspace
+  const workspacePath = workspaceFolders[0].uri.fsPath;
+    const lineNumber = editor.selection.active.line + 1;
+    const current_file = path.relative(workspacePath, filePath);
 
-
-  const filePath = path.join(rootPath, "blame.json");
+  const filePathJson = path.join(rootPath, "blame.json");
 
   // Initialiser les décorations
   let lineDecorations: any[] = [];
 
-  if (fs.existsSync(filePath)) {
-    const fileContent = fs.readFileSync(filePath, "utf-8");
+  if (fs.existsSync(filePathJson)) {
+    const fileContent = fs.readFileSync(filePathJson, "utf-8");
     const blameData: BlameData = JSON.parse(fileContent);
     const linesToHighlight: number[] = []; // Tableau pour stocker les lignes à surligner
 
