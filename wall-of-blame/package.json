@@ -11,6 +11,14 @@
   ],
   "main": "./dist/extension.js",
   "contributes": {
+    "views": {
+      "scm": [
+        {
+					"id": "nodeContributors",
+					"name": "Node Contributors"
+				}
+      ]
+    },
     "commands": [
       {
         "command": "extension.blame",
@@ -19,7 +27,31 @@
       {
         "command": "extension.showGitContributors",
         "title": "Show Git Contributors"
-      }
+      },
+      {
+				"command": "nodeContributors.refreshEntry",
+				"title": "Refresh",
+				"icon": {
+					"light": "resources/light/refresh.svg",
+					"dark": "resources/dark/refresh.svg"
+				}
+			},
+			{
+				"command": "nodeContributors.addEntry",
+				"title": "Add"
+			},
+			{
+				"command": "nodeContributors.editEntry",
+				"title": "Edit",
+				"icon": {
+					"light": "resources/light/edit.svg",
+					"dark": "resources/dark/edit.svg"
+				}
+			},
+			{
+				"command": "nodeContributors.deleteEntry",
+				"title": "Delete"
+			}
     ],
     "menus": {
       "editor/context": [
@@ -48,17 +80,17 @@
     "test": "vscode-test"
   },
   "devDependencies": {
-    "@types/vscode": "^1.94.0",
     "@types/mocha": "^10.0.8",
     "@types/node": "20.x",
+    "@types/vscode": "^1.94.0",
     "@typescript-eslint/eslint-plugin": "^8.7.0",
     "@typescript-eslint/parser": "^8.7.0",
-    "eslint": "^9.11.1",
-    "typescript": "^5.6.2",
-    "ts-loader": "^9.5.1",
-    "webpack": "^5.95.0",
-    "webpack-cli": "^5.1.4",
     "@vscode/test-cli": "^0.0.10",
-    "@vscode/test-electron": "^2.4.1"
+    "@vscode/test-electron": "^2.4.1",
+    "eslint": "^9.11.1",
+    "ts-loader": "^9.5.1",
+    "typescript": "^5.6.2",
+    "webpack": "^5.95.0",
+    "webpack-cli": "^5.1.4"
   }
 }
