@@ -11,7 +11,39 @@
   ],
   "main": "./dist/extension.js",
   "contributes": {
+    "views": {
+      "scm": [
+        {
+          "id": "nodeContributors",
+          "name": "Node Contributors"
+        }
+      ]
+    },
     "commands": [
+      {
+        "command": "nodeContributors.refreshEntry",
+        "title": "Refresh",
+        "icon": {
+          "light": "resources/light/refresh.svg",
+          "dark": "resources/dark/refresh.svg"
+        }
+      },
+      {
+        "command": "nodeContributors.addEntry",
+        "title": "Add"
+      },
+      {
+        "command": "nodeContributors.editEntry",
+        "title": "Edit",
+        "icon": {
+          "light": "resources/light/edit.svg",
+          "dark": "resources/dark/edit.svg"
+        }
+      },
+      {
+        "command": "nodeContributors.deleteEntry",
+        "title": "Delete"
+      },
       {
         "command": "extension.blame",
         "title": "Blame"
@@ -19,18 +51,33 @@
       {
         "command": "extension.showGitContributors",
         "title": "Show Git Contributors"
+      },
+      {
+        "command": "extension.unblame",
+        "title": "Unblame"
       }
+    ],
+    "activationEvents": [
+      "onStartupFinished"
     ],
     "menus": {
       "editor/context": [
         {
           "command": "extension.blame",
           "group": "navigation"
+        },
+        {
+          "command": "extension.unblame",
+          "group": "navigation"
         }
       ],
       "explorer/context": [
         {
           "command": "extension.blame",
+          "group": "navigation"
+        },
+        {
+          "command": "extension.unblame",
           "group": "navigation"
         }
       ]
