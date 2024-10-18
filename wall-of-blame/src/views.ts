@@ -41,22 +41,35 @@ export class ContribNodeProvider implements vscode.TreeDataProvider<Contributor>
 	private getContributorsLinesPoints(packageJsonPath: string): Contributor[] {
 		const workspaceRoot = this.workspaceRoot;
 		if (this.pathExists(packageJsonPath) && workspaceRoot) {
-			let packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf-8'));
-			let contributorTree : Contributor[] = [];
-			for (let [key, value] of packageJson) {
-				const contributorName = key;
-				const points = value[0];
-				const lines = value[1];
-				contributorTree.push(new Contributor(contributorName, points, vscode.TreeItemCollapsibleState.Collapsed))
-				for (let line of lines) {
-					contributorTree.push(new Contributor(line[0], line[1], vscode.TreeItemCollapsibleState.None));
+			// Parse the JSON file and cast it to the correct type
+			let packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf-8')) as PackageJson;
+			let contributorTree: Contributor[] = [];
+	
+			// Iterate over the contributors in the packageJson object
+			for (let [contributorName, contributorInfo] of Object.entries(packageJson)) {
+				const points = contributorInfo.points;
+				const lines = contributorInfo.lines;
+	
+				// Add the main contributor node with points
+				contributorTree.push(new Contributor(contributorName, points, vscode.TreeItemCollapsibleState.Collapsed));
+	
+				// Check if 'lines' is an array and iterate over it
+				if (Array.isArray(lines)) {
+					for (let line of lines) {
+						// Add each line with filename and line number
+						contributorTree.push(new Contributor(`${line.filename} (line ${line.lineNumber})`, null, vscode.TreeItemCollapsibleState.None));
+					}
+				} else {
+					console.warn(`'lines' for ${contributorName} is not an array or is null.`);
 				}
 			}
+	
 			return contributorTree;
 		} else {
 			return [];
 		}
 	}
+	
 
 	private pathExists(p: string): boolean {
 		try {
@@ -88,4 +101,21 @@ export class Contributor extends vscode.TreeItem {
 	};
 
 	contextValue = 'dependency';
+}
+
+// Représente une ligne dans un fichier
+interface Line {
+    filename: string;
+    lineNumber: number;
+}
+
+// Représente un contributeur avec ses points et ses lignes modifiées
+interface ContributorInfo {
+    points: number;
+    lines: Line[];
+}
+
+// Représente la structure globale avec des contributeurs comme clés
+interface PackageJson {
+    [contributorName: string]: ContributorInfo;
 }
